@@ -9,7 +9,7 @@ def user_id_entry():
     if "user_id" not in st.session_state:
         st.session_state.user_id = ""
 
-    st.session_state.user_id = st.text_input("", "your id goes here", key="user_id_input")
+    st.session_state.user_id = st.sidebar.text_input("", "your id goes here")
 
     # # Create a container for the grid
     # grid_container = st.sidebar.container()
@@ -78,13 +78,13 @@ def user_id_entry():
         # st.write(f"Keyed in: {masked_id}")
 
     # Enter button
-    if st.button("Enter", key="enter"):
+    if st.sidebar.button("Check ID", key="enter"):
         # add user id validation logic
         if st.session_state.user_id == "1234": 
-            st.success("ID entered successfully.")
+            st.sidebar.success("ID entered successfully.")
             st.session_state.user_status = "OK"
         else:
-            st.error("ID entered incorrectly.")
+            st.sidebar.error("ID entered incorrectly.")
             st.session_state.user_status = "KO"
         st.session_state.user_id = ""  # Clear the user id after submission
 
