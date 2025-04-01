@@ -9,7 +9,7 @@ def user_id_entry():
     if "user_id" not in st.session_state:
         st.session_state.user_id = ""
 
-    st.session_state.user_id = st.sidebar.text_input("", "your id goes here")
+    st.session_state.user_id = st.sidebar.text_input("🆔 ", "your id goes here")
 
     # # Create a container for the grid
     # grid_container = st.sidebar.container()
@@ -80,7 +80,7 @@ def user_id_entry():
     # Enter button
     if st.sidebar.button("Check ID", key="check"):
         # user id validation
-        if st.session_state.user_id == "1234": 
+        if st.session_state.user_id in st.secrets["user_ids"]: 
             st.sidebar.success("ID entered successfully.")
             st.session_state.user_status = "OK"
         else:
@@ -97,12 +97,12 @@ user_id_entry()
 
 # Add a URL entry field
 url_label_css = """<style>
-    .stTextInput>label:before { content: "🔗"; font-size: 20px;}
+    .stTextInput>label:before { content: ""; font-size: 20px;}
     .stTextInput>label>div { font-size: 20px; }
     .stTextInput>div>div>input  {color: #999999; opacity: 0.8; }
     </style>"""
 st.markdown(url_label_css, unsafe_allow_html=True)
-url_input = st.text_input("URL", "https://example.com/")
+url_input = st.text_input("🔗 URL", "https://example.com/")
 
 # Add a slider to set the number of bullet points
 slider_label_css = "<style>.stSlider>label>div { font-size: 20px; }</style>"
