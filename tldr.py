@@ -33,7 +33,7 @@ def user_id_entry():
     
     # Create the number grid within the container
     with grid_container:
-        col1, col2, col3, col4, col5 = st.columns(5)
+        col1, col2, col3 = st.columns(3)
         with col1:
             if st.button('a', key='a'):
                 st.session_state.user_id += 'a'
