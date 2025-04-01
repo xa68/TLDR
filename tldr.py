@@ -90,7 +90,7 @@ def user_id_entry():
 
 # --- Main App ---
 # st.set_page_config(layout="wide")
-st.title("TL;DR")
+st.title("⚡  TL;DR")
 
 # Add a user entry grid in the side bar
 user_id_entry()
@@ -110,7 +110,7 @@ st.markdown(slider_label_css, unsafe_allow_html=True)
 n_bullet_points = st.slider('Nr. of bullet points', 1, 5, 3)
 
 # Display the bullet points
-if st.button("Get the TL;DR") and st.session_state.get("user_status") == "OK":
+if st.button("⏩ Get the TL;DR") and st.session_state.get("user_status") == "OK":
     # Get the bullet points
     texts = """
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse 
