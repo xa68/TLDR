@@ -24,7 +24,7 @@ def user_id_entry():
             margin-bottom: 5px; /* Add some spacing between buttons */
         }
         div[data-testid="stVerticalBlock"] {
-            width: 300px; /* Adjust the width of the container as needed */
+            width: 100px; /* Adjust the width of the container as needed */
             margin: 0 auto; /* Center the container horizontally */
         }
     </style>
