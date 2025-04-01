@@ -9,7 +9,7 @@ def user_id_entry():
     if "user_id" not in st.session_state:
         st.session_state.user_id = ""
 
-    st.session_state.user_id = st.sidebar.text_input("", "your id goes here")
+    st.session_state.user_id = st.sidebar.text_input("", "your id goes here", key="user_id")
 
     # # Create a container for the grid
     # grid_container = st.sidebar.container()
@@ -78,8 +78,8 @@ def user_id_entry():
         # st.write(f"Keyed in: {masked_id}")
 
     # Enter button
-    if st.sidebar.button("Check ID", key="enter"):
-        # add user id validation logic
+    if st.sidebar.button("Check ID", key="check"):
+        # user id validation
         if st.session_state.user_id == "1234": 
             st.sidebar.success("ID entered successfully.")
             st.session_state.user_status = "OK"
@@ -113,7 +113,8 @@ n_bullet_points = st.slider('Nr. of bullet points', 1, 5, 3)
 if st.button("Get the TL;DR") and st.session_state.get("user_status") == "OK":
     # Get the bullet points
     texts = """
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse pharetra tortor non lobortis vulputate. Maecenas a tempus ipsum, ut 
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse 
+        pharetra tortor non lobortis vulputate. Maecenas a tempus ipsum, ut 
         sodales enim. Etiam id tincidunt odio. Nunc ultrices commodo ipsum nec 
         blandit. Quisque vitae dapibus lacus. Proin interdum aliquet arcu. 
         Sed quam magna, pretium ac felis vel, scelerisque maximus ante.
@@ -125,17 +126,3 @@ if st.button("Get the TL;DR") and st.session_state.get("user_status") == "OK":
     # Display the bullet points in a text area
     text_area_content = "\n".join(texts_to_display)
     st.text_area(" ", value=text_area_content, height=n_bullet_points *100)
-
-    # styled_text_box = """
-    #     <div style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-    #         {}
-    #     </div>
-    # """
-    # for text in texts_to_display:
-    #     st.markdown(styled_text_box.format(text+"."), unsafe_allow_html=True)
-
-    # st.markdown(f"""
-    #     # <div style="border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
-    #         {texts_to_display}
-    #     </div>
-    #     """, unsafe_allow_html=True)
