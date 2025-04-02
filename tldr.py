@@ -9,7 +9,7 @@ def user_id_entry():
     if "user_id" not in st.session_state:
         st.session_state.user_id = ""
 
-    st.session_state.user_id = st.sidebar.text_input("🆔 ", "your id goes here")
+    st.session_state.user_id = st.sidebar.text_input("🆔 ", "your_id")
 
     # # Create a container for the grid
     # grid_container = st.sidebar.container()
