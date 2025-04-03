@@ -123,13 +123,11 @@ url_label_css = """<style>
     </style>"""
 st.markdown(url_label_css, unsafe_allow_html=True)
 url_input = st.text_input("🔗 URL", "https://example.com/")
-st.write(url_input)
 
 # Add a slider to set the number of bullet points
 slider_label_css = "<style>.stSlider>label>div { font-size: 20px; }</style>"
 st.markdown(slider_label_css, unsafe_allow_html=True)
 n_bullet_points = st.slider('Nr. of bullet points', 1, 5, 3)
-st.write(n_bullet_points)
 
 # Display the bullet points
 if st.button("⏩ Get the TL;DR") and st.session_state.get("user_status") == "OK":
