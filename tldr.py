@@ -137,10 +137,6 @@ if st.button("⏩ Get the TL;DR") and st.session_state.get("user_status") == "OK
     st.markdown(bullet_points_text)
     token_count_css = "<style> .small-gray {font-size: 16px; color: #999999; } </style>"
     st.markdown(token_count_css, unsafe_allow_html=True)
-    # st.markdown(f"<span class='small-gray'>Input tokens: {bullet_points_response[1]}</span>",
-    #             unsafe_allow_html=True)
-    # st.markdown(f"<span class='small-gray'>Output tokens: {bullet_points_response[2]}</span>",
-    #             unsafe_allow_html=True)
     st.markdown(f"""<p class='small-gray'>Input tokens: {bullet_points_response[1]}
                 <br>Output tokens: {bullet_points_response[2]}
               </p>""", unsafe_allow_html=True)
