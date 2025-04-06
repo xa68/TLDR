@@ -105,8 +105,10 @@ def bullet_points(url, n_bullet_points):
         model="gemini-2.0-flash",
         contents=prompt
     )
+    n_input_tokens = response.usage_metadata.prompt_token_count
+    n_output_tokens = response.usage_metadata.candidates_token_count
 
-    return response.text
+    return response.text, n_input_tokens, n_output_tokens
     
 # --- Main App ---
 # st.set_page_config(layout="wide")
@@ -131,20 +133,12 @@ n_bullet_points = st.slider('Nr. of bullet points', 1, 5, 3)
 
 # Display the bullet points
 if st.button("⏩ Get the TL;DR") and st.session_state.get("user_status") == "OK":
-    bullet_points_text = bullet_points(url_input, n_bullet_points)
+    bullet_points_response = bullet_points(url_input, n_bullet_points)
+    bullet_points_text = bullet_points_response[0]
     st.markdown(bullet_points_text)
-    # texts = """
-    #     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse 
-    #     pharetra tortor non lobortis vulputate. Maecenas a tempus ipsum, ut 
-    #     sodales enim. Etiam id tincidunt odio. Nunc ultrices commodo ipsum nec 
-    #     blandit. Quisque vitae dapibus lacus. Proin interdum aliquet arcu. 
-    #     Sed quam magna, pretium ac felis vel, scelerisque maximus ante.
-    #     """
-    # texts_to_display = []
-    # for text in texts.split("."):
-    #     texts_to_display.append("• "+text.strip()+".")
-    
-    # Display the bullet points in a text area
-    # text_area_content = "\n".join(bullet_points_text.split("\n"))
-    # st.text_area(" ", value=text_area_content, height=n_bullet_points *100)
-    
+    token_count_css = "<style> .small-gray {font-size: 16px; color: #999999; } </style>"
+    st.markdown(token_count_css, unsafe_allow_html=True)
+    st.markdown(f"<span class='small-gray'>Input tokens: {bullet_points_response[1]}</span>",
+                unsafe_allow_html=True)
+    st.markdown(f"<span class='small-gray'>Output tokens: {bullet_points_response[2]}</span>",
+                unsafe_allow_html=True)
