@@ -107,7 +107,11 @@ def bullet_points(url, n_bullet_points):
     n_input_tokens = response.usage_metadata.prompt_token_count
     n_output_tokens = response.usage_metadata.candidates_token_count
 
-    return response.text, n_input_tokens, n_output_tokens
+    llm_response = {'text': response.text,
+                        'n_input_tokens': n_input_tokens,
+                        'n_output_tokens': n_output_tokens}
+
+    return llm_response
     
 # --- Main App ---
 # st.set_page_config(layout="wide")
@@ -116,11 +120,19 @@ st.title("TL;DR")
 # Add a user entry grid in the side bar
 user_id_entry()
 
+# Create a list of llm responses as a state variable
+if "llm_responses" not in st.session_state:
+    st.session_state.llm_responses = []
+
+# Create a session token counter as a state variable
+if "session_tokens" not in st.session_state:
+    st.session_state.session_tokens = 0
+    
 # Add a URL entry field
 url_label_css = """<style>
     .stTextInput>label:before { content: ""; font-size: 20px;}
     .stTextInput>label>div { font-size: 20px; }
-    .stTextInput>div>div>input  {color: #999999; opacity: 0.8; }
+    .stTextInput>div>div>input  {color: #999999; opacity: 0.7; font-size: 20px; }
     </style>"""
 st.markdown(url_label_css, unsafe_allow_html=True)
 url_input = st.text_input("🔗 URL", "https://example.com/")
@@ -130,13 +142,34 @@ slider_label_css = "<style>.stSlider>label>div { font-size: 20px; }</style>"
 st.markdown(slider_label_css, unsafe_allow_html=True)
 n_bullet_points = st.slider('Nr. of bullet points', 1, 5, 3)
 
-# Display the bullet points
+# Get the bullet points and append them to the list of messages
 if st.button("⏩ Get the TL;DR") and st.session_state.get("user_status") == "OK":
     bullet_points_response = bullet_points(url_input, n_bullet_points)
-    bullet_points_text = bullet_points_response[0]
-    st.markdown(bullet_points_text)
+    st.session_state.llm_responses.append(bullet_points_response)
+
+    # Update the session token counter
+    n_input_tokens = bullet_points_response['n_input_tokens']
+    n_output_tokens = bullet_points_response['n_output_tokens']
+    st.session_state.session_tokens += n_input_tokens + n_output_tokens
+
     token_count_css = "<style> .small-gray {font-size: 16px; color: #999999; } </style>"
-    st.markdown(token_count_css, unsafe_allow_html=True)
-    st.markdown(f"""<p class='small-gray'>Input tokens: {bullet_points_response[1]}
-                <br>Output tokens: {bullet_points_response[2]}
+    st.markdown(f"""<p class='small-gray'>Session tokens: {st.session_state.session_tokens}
               </p>""", unsafe_allow_html=True)
+    st.markdown("---")
+
+    # Display the llm responses on app rerun (last on top):
+    for response in reversed(st.session_state.llm_responses):
+        st.markdown(response['text'])
+        st.markdown(f"""<p class='small-gray'>Input tokens: {response['n_input_tokens']}
+                <br>
+                    Output tokens: {response['n_output_tokens']}
+              </p>""", unsafe_allow_html=True)
+        st.markdown("---")
+
+        
+    # st.markdown(bullet_points_text)
+    # token_count_css = "<style> .small-gray {font-size: 16px; color: #999999; } </style>"
+    # st.markdown(token_count_css, unsafe_allow_html=True)
+    # st.markdown(f"""<p class='small-gray'>Input tokens: {bullet_points_response['n_input_tokens']}
+    #             <br>Output tokens: {bullet_points_response['n_output_tokens']}
+    #           </p>""", unsafe_allow_html=True)
