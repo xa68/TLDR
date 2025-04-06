@@ -44,7 +44,6 @@ def user_id_entry():
     #         if st.button("7", key="7"):
     #             st.session_state.user_id += "7"
             
-
     #     with col2:
     #         if st.button('b', key='b'):
     #             st.session_state.user_id += 'b'
