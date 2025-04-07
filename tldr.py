@@ -113,6 +113,17 @@ def bullet_points(url, n_bullet_points):
 
     return llm_response
     
+
+def display_responses(llm_responses):
+    for response in reversed(llm_responses):
+        st.markdown("---")
+        st.markdown(response['text'])
+        st.markdown(f"""<p class='small-gray'>Input tokens: {response['n_input_tokens']}
+                <br>
+                    Output tokens: {response['n_output_tokens']}
+            </p>""", unsafe_allow_html=True)
+
+    
 # --- Main App ---
 # st.set_page_config(layout="wide")
 st.title("TL;DR")
@@ -142,31 +153,49 @@ slider_label_css = "<style>.stSlider>label>div { font-size: 20px; }</style>"
 st.markdown(slider_label_css, unsafe_allow_html=True)
 n_bullet_points = st.slider('Nr. of bullet points', 1, 5, 3)
 
-# Get the bullet points and append them to the list of messages
-if st.button("⏩ Get the TL;DR") and st.session_state.get("user_status") == "OK":
-    bullet_points_response = bullet_points(url_input, n_bullet_points)
-    st.session_state.llm_responses.append(bullet_points_response)
+# Make 2 columns, for the Get tldr button and Get session summary button
+col1, col2 = st.columns(2)
+with col1:
+    # Get the bullet points and append them to the list of messages
+    if st.button("⏩ Get the TL;DR") and st.session_state.get("user_status") == "OK":
+        bullet_points_response = bullet_points(url_input, n_bullet_points)
+        st.session_state.llm_responses.append(bullet_points_response)
 
-    # Update the session token counter
-    n_input_tokens = bullet_points_response['n_input_tokens']
-    n_output_tokens = bullet_points_response['n_output_tokens']
-    st.session_state.session_tokens += n_input_tokens + n_output_tokens
+        # Update the session token counter
+        n_input_tokens = bullet_points_response['n_input_tokens']
+        n_output_tokens = bullet_points_response['n_output_tokens']
+        st.session_state.session_tokens += n_input_tokens + n_output_tokens
 
-    token_count_css = "<style> .small-gray {font-size: 16px; color: #999999; } </style>"
-    st.markdown(f"""<p class='small-gray'>Session tokens: {st.session_state.session_tokens}
-              </p>""", unsafe_allow_html=True)
-    st.markdown("---")
+        token_count_css = "<style> .small-gray {font-size: 16px; color: #999999; } </style>"
+        st.markdown(f"""<p class='small-gray'>Session tokens: {st.session_state.session_tokens}
+                </p>""", unsafe_allow_html=True)
 
-    # Display the llm responses on app rerun (last on top):
-    for response in reversed(st.session_state.llm_responses):
-        st.markdown(response['text'])
-        st.markdown(f"""<p class='small-gray'>Input tokens: {response['n_input_tokens']}
-                <br>
-                    Output tokens: {response['n_output_tokens']}
-              </p>""", unsafe_allow_html=True)
-        st.markdown("---")
+# list_of_responses(st.session_state.llm_responses)
 
+        # # Display the llm responses on app rerun (last on top):
+        # for response in reversed(st.session_state.llm_responses):
+        #     st.markdown(response['text'])
+        #     st.markdown(f"""<p class='small-gray'>Input tokens: {response['n_input_tokens']}
+        #             <br>
+        #                 Output tokens: {response['n_output_tokens']}
+        #         </p>""", unsafe_allow_html=True)
+        #     st.markdown("---")
+
+with col2:
+    if st.button("📄 Get session summary") and st.session_state.llm_responses:
+        responses_concat = "\\n".join(response['text'] for response in st.session_state.llm_responses)
+        summary_prompt = f"""Summarize the following text: \\n{responses_concat}"""
+        summary = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=summary_prompt
+        )
+        summary_response = {'text': summary.text,
+                    'n_input_tokens':summary.usage_metadata.prompt_token_count,
+                    'n_output_tokens': summary.usage_metadata.candidates_token_count}
+        st.session_state.llm_responses.append(summary_response)
         
+display_responses(st.session_state.llm_responses)
+
     # st.markdown(bullet_points_text)
     # token_count_css = "<style> .small-gray {font-size: 16px; color: #999999; } </style>"
     # st.markdown(token_count_css, unsafe_allow_html=True)
