@@ -9,72 +9,7 @@ def user_id_entry():
     if "user_id" not in st.session_state:
         st.session_state.user_id = ""
 
-    st.session_state.user_id = st.sidebar.text_input("🆔 ", "your_id")
-
-    # # Create a container for the grid
-    # grid_container = st.sidebar.container()
-
-    #     # CSS to control button widths and container width
-    # container_css = """
-    # <style>
-    #     div[data-testid="column"] button {
-    #         width: 100%; /* Make buttons fill the column width */
-    #         margin-bottom: 5px; /* Add some spacing between buttons */
-    #     }
-    #     div[data-testid="stVerticalBlock"] {
-    #         width: 300px; /* Adjust the width of the container as needed */
-    #         margin: 0 auto; /* Center the container horizontally */
-    #     }
-    # </style>
-    # """
-    # st.markdown(container_css, unsafe_allow_html=True)
-    
-    # # Create the number grid within the container
-    # with grid_container:
-    #     col1, col2, col3 = st.columns(3)
-    #     with col1:
-    #         if st.button('a', key='a'):
-    #             st.session_state.user_id += 'a'
-    #         if st.button("d", key="d"):
-    #             st.session_state.user_id += "d"
-    #         if st.button("1", key="1"):
-    #             st.session_state.user_id += "1"
-    #         if st.button("4", key="4"):
-    #             st.session_state.user_id += "4"
-    #         if st.button("7", key="7"):
-    #             st.session_state.user_id += "7"
-            
-    #     with col2:
-    #         if st.button('b', key='b'):
-    #             st.session_state.user_id += 'b'
-    #         if st.button("e", key="e"):
-    #             st.session_state.user_id += "e"
-    #         if st.button("2", key="2"):
-    #             st.session_state.user_id += "2"
-    #         if st.button("5", key="5"):
-    #             st.session_state.user_id += "5"
-    #         if st.button("8", key="8"):
-    #             st.session_state.user_id += "8"
-    #         if st.button("0", key="0"):
-    #             st.session_state.user_id += "0"
-
-    #     with col3:
-    #         if st.button('c', key='c'):
-    #             st.session_state.user_id += 'c'
-    #         if st.button("f", key="f"):
-    #             st.session_state.user_id += "f"
-    #         if st.button("3", key="3"):
-    #             st.session_state.user_id += "3"
-    #         if st.button("6", key="6"):
-    #             st.session_state.user_id += "6"
-    #         if st.button("9", key="9"):
-    #             st.session_state.user_id += "9"      
-    #         if st.button("Clear", key="clear"):
-    #             st.session_state.user_id = ""              
-
-        # # Display the entered id (masked for security)
-        # masked_id = "*" * len(st.session_state.user_id)
-        # st.write(f"Keyed in: {masked_id}")
+    st.session_state.user_id = st.sidebar.text_input("🆔 ", "your_id")  
 
     # Enter button
     if st.sidebar.button("Check ID", key="check"):
@@ -92,8 +27,15 @@ from google import genai
 
 client = genai.Client(api_key=st.secrets["api_key"])
 
+def formatted_response(response):
+    return {
+        "text": response.text,
+        "n_input_tokens": response.usage_metadata.prompt_token_count,
+        "n_output_tokens": response.usage_metadata.candidates_token_count,
+    }
+
+
 def bullet_points(url, n_bullet_points):
-    """"""
     prompt = f"""give me the tl;dr of the article at url 
     {url} 
     in {n_bullet_points} bullet points. 
@@ -104,18 +46,12 @@ def bullet_points(url, n_bullet_points):
         model="gemini-2.0-flash",
         contents=prompt
     )
-    n_input_tokens = response.usage_metadata.prompt_token_count
-    n_output_tokens = response.usage_metadata.candidates_token_count
 
-    llm_response = {'text': response.text,
-                        'n_input_tokens': n_input_tokens,
-                        'n_output_tokens': n_output_tokens}
-
-    return llm_response
+    return formatted_response(response)
     
 
-def display_responses(llm_responses):
-    for response in reversed(llm_responses):
+def display_responses(responses):
+    for response in reversed(responses):
         st.markdown("---")
         st.markdown(response['text'])
         st.markdown(f"""<p class='small-gray'>Input tokens: {response['n_input_tokens']}
@@ -153,10 +89,10 @@ slider_label_css = "<style>.stSlider>label>div { font-size: 20px; }</style>"
 st.markdown(slider_label_css, unsafe_allow_html=True)
 n_bullet_points = st.slider('Nr. of bullet points', 1, 5, 3)
 
-# Make 2 columns, for the Get tldr button and Get session summary button
+# Make 2 columns, one for the Get tldr button and ome for the Get session summary button
 col1, col2 = st.columns(2)
 with col1:
-    # Get the bullet points and append them to the list of messages
+    # Get the bullet points and append them to the list of responses
     if st.button("⏩ Get the TL;DR") and st.session_state.get("user_status") == "OK":
         bullet_points_response = bullet_points(url_input, n_bullet_points)
         st.session_state.llm_responses.append(bullet_points_response)
@@ -165,23 +101,13 @@ with col1:
         n_input_tokens = bullet_points_response['n_input_tokens']
         n_output_tokens = bullet_points_response['n_output_tokens']
         st.session_state.session_tokens += n_input_tokens + n_output_tokens
-
+        # display the session token counter
         token_count_css = "<style> .small-gray {font-size: 16px; color: #999999; } </style>"
         st.markdown(f"""<p class='small-gray'>Session tokens: {st.session_state.session_tokens}
                 </p>""", unsafe_allow_html=True)
 
-# list_of_responses(st.session_state.llm_responses)
-
-        # # Display the llm responses on app rerun (last on top):
-        # for response in reversed(st.session_state.llm_responses):
-        #     st.markdown(response['text'])
-        #     st.markdown(f"""<p class='small-gray'>Input tokens: {response['n_input_tokens']}
-        #             <br>
-        #                 Output tokens: {response['n_output_tokens']}
-        #         </p>""", unsafe_allow_html=True)
-        #     st.markdown("---")
-
 with col2:
+    # Get the session summary and append it to the list of responses
     if st.button("📄 Get session summary") and st.session_state.llm_responses:
         responses_concat = "\\n".join(response['text'] for response in st.session_state.llm_responses)
         summary_prompt = f"""Summarize the following text: \\n{responses_concat}"""
@@ -189,16 +115,8 @@ with col2:
             model="gemini-2.0-flash",
             contents=summary_prompt
         )
-        summary_response = {'text': summary.text,
-                    'n_input_tokens':summary.usage_metadata.prompt_token_count,
-                    'n_output_tokens': summary.usage_metadata.candidates_token_count}
-        st.session_state.llm_responses.append(summary_response)
-        
-display_responses(st.session_state.llm_responses)
 
-    # st.markdown(bullet_points_text)
-    # token_count_css = "<style> .small-gray {font-size: 16px; color: #999999; } </style>"
-    # st.markdown(token_count_css, unsafe_allow_html=True)
-    # st.markdown(f"""<p class='small-gray'>Input tokens: {bullet_points_response['n_input_tokens']}
-    #             <br>Output tokens: {bullet_points_response['n_output_tokens']}
-    #           </p>""", unsafe_allow_html=True)
+        st.session_state.llm_responses.append(formatted_response(summary))
+        
+# display all responses
+display_responses(st.session_state.llm_responses)
