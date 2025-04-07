@@ -88,6 +88,7 @@ url_input = st.text_input("🔗 URL", "https://example.com/")
 slider_label_css = "<style>.stSlider>label>div { font-size: 20px; }</style>"
 st.markdown(slider_label_css, unsafe_allow_html=True)
 n_bullet_points = st.slider('Nr. of bullet points', 1, 5, 3)
+hide_responses = True
 
 # Make 2 columns, one for the Get tldr button and ome for the Get session summary button
 col1, col2 = st.columns(2)
@@ -105,6 +106,7 @@ with col1:
         token_count_css = "<style> .small-gray {font-size: 16px; color: #999999; } </style>"
         st.markdown(f"""<p class='small-gray'>Session tokens: {st.session_state.session_tokens}
                 </p>""", unsafe_allow_html=True)
+        hide_responses = False
 
 with col2:
     # Get the session summary and append it to the list of responses
@@ -117,6 +119,8 @@ with col2:
         )
 
         st.session_state.llm_responses.append(formatted_response(summary))
+        hide_responses = False
         
 # display all responses
-display_responses(st.session_state.llm_responses)
+if not hide_responses:
+    display_responses(st.session_state.llm_responses)
