@@ -1,4 +1,5 @@
 import streamlit as st
+import re
 
 def user_id_entry():
     """Creates a user id entry grid in the sidebar."""
@@ -33,7 +34,6 @@ def formatted_response(response):
         "n_input_tokens": response.usage_metadata.prompt_token_count,
         "n_output_tokens": response.usage_metadata.candidates_token_count,
     }
-
 
 def bullet_points(url, n_bullet_points):
     prompt = f"""give me the tl;dr of the article at url 
@@ -84,6 +84,13 @@ url_label_css = """<style>
 st.markdown(url_label_css, unsafe_allow_html=True)
 url_input = st.text_input("🔗 URL", "https://example.com/")
 
+# Validate the entered url has the right format
+if re.match(r'http[s]?://', url_input):
+    input_ok = True
+else:
+    input_ok = False
+    st.error("Please enter a valid URL.")
+
 # Add a slider to set the number of bullet points
 slider_label_css = "<style>.stSlider>label>div { font-size: 20px; }</style>"
 st.markdown(slider_label_css, unsafe_allow_html=True)
@@ -94,7 +101,7 @@ hide_responses = True
 col1, col2 = st.columns(2)
 with col1:
     # Get the bullet points and append them to the list of responses
-    if st.button("⏩ Get the TL;DR") and st.session_state.get("user_status") == "OK":
+    if input_ok and st.button("⏩ Get the TL;DR") and st.session_state.get("user_status") == "OK":
         bullet_points_response = bullet_points(url_input, n_bullet_points)
         st.session_state.llm_responses.append(bullet_points_response)
 
